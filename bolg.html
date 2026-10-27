@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:linear-gradient(135deg,#fff7ff,#f5e8ff);color:#17202a}
+button{cursor:pointer}
+#authPage{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#eb36eb,#c026d3)}
+.authBox{width:360px;max-width:92%;background:white;padding:35px;border-radius:20px;box-shadow:0 10px 30px #0003}
+.logo{text-align:center;color:#eb36eb;font-size:32px;font-weight:bold;margin-bottom:8px}
+.authSubtitle{text-align:center;color:#777;margin-bottom:25px}
+.authBox input{width:100%;padding:13px;margin-bottom:15px;border:1px solid #ddd;border-radius:10px}
+.authButton,.publishButton,.followButton{background:#eb36eb;color:white;border:0;border-radius:25px;padding:10px 18px;font-weight:bold}
+.authButton{width:100%;padding:13px;font-size:16px}
+.authText{text-align:center;margin-top:18px;color:#777;font-size:14px}
+.authText span{color:#eb36eb;font-weight:bold;cursor:pointer;margin-left:4px}
+#appPage{display:none}
+.topbar{height:65px;background:white;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5}
+.topLogo{font-size:25px;font-weight:bold;color:#eb36eb}
+.topRight{display:flex;align-items:center;gap:15px}
+.logout{background:#ef4444;color:white;border:0;padding:9px 18px;border-radius:20px}
+.layout{max-width:1200px;margin:auto;display:grid;grid-template-columns:220px minmax(0,1fr) 260px;gap:20px;padding:20px}
+.leftSidebar{background:white;border-radius:15px;padding:15px;height:fit-content;position:sticky;top:85px}
+.navItem{padding:14px;border-radius:10px;margin-bottom:5px;font-weight:bold;cursor:pointer}
+.navItem:hover,.navItem.active{background:#fde7ff;color:#eb36eb}
+.postButton{width:100%;padding:12px;border:0;background:#eb36eb;color:white;border-radius:25px;font-weight:bold;margin-top:10px}
+.main{min-width:0}
+.section{display:none}
+.section.active{display:block}
+.pageTitle{background:white;padding:18px;border-radius:15px;margin-bottom:15px;font-size:22px;font-weight:bold}
+.createBox,.post{background:white;padding:18px;border-radius:15px;margin-bottom:15px}
+.createTop,.postHeader{display:flex;align-items:center;gap:12px}
+.userAvatar,.smallAvatar{width:45px;height:45px;min-width:45px;border-radius:50%;background:#eb36eb;color:white;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.createBox textarea{width:100%;min-height:80px;border:0;resize:vertical;outline:none;font-size:16px;padding:10px}
+.createBottom{border-top:1px solid #eee;margin-top:10px;padding-top:12px;display:flex;justify-content:space-between;align-items:center}
+.imageLabel{color:#eb36eb;font-weight:bold;cursor:pointer}
+.imageLabel input{display:none}
+.selectedImage{max-width:100%;max-height:250px;margin-top:10px;border-radius:12px;display:none}
+.postUser{font-weight:bold}
+.postDate{color:#777;font-size:12px;margin-top:4px}
+.postText{margin:15px 0;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.postImage{width:100%;max-height:450px;object-fit:contain;border-radius:12px;margin:5px 0 10px}
+.postActions{border-top:1px solid #eee;padding-top:12px;display:flex;gap:22px}
+.actionButton{border:0;background:transparent;color:#555;font-size:14px}
+.liked{color:#e91e63}
+.deletePost{margin-left:auto;color:#e53935}
+.commentArea{margin-top:12px;border-top:1px solid #eee;padding-top:12px}
+.commentInput{display:flex;gap:8px}
+.commentInput input{flex:1;min-width:0;padding:10px;border:1px solid #ddd;border-radius:20px}
+.commentInput button{border:0;background:#eb36eb;color:white;padding:8px 15px;border-radius:20px}
+.comment{background:#fff0ff;padding:10px;border-radius:10px;margin-top:8px;overflow-wrap:anywhere}
+.commentUser{font-weight:bold;font-size:13px}
+.commentText{margin-top:4px;font-size:14px}
+.rightSidebar{display:flex;flex-direction:column;gap:15px}
+.infoCard,.userList{background:white;padding:20px;border-radius:15px;min-width:0}
+.infoCard h3,.userList h3{margin-bottom:12px}
+.statRow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee}
+.statRow:last-child{border:0}
+.profileCard{background:white;border-radius:15px;overflow:hidden;margin-bottom:15px}
+.cover{height:130px;background:linear-gradient(135deg,#eb36eb,#f0abfc)}
+.profileInfo{padding:20px;text-align:center}
+.largeAvatar{width:90px;height:90px;border-radius:50%;background:#eb36eb;color:white;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;margin:-60px auto 10px;border:5px solid white}
+.profileName{font-size:22px;font-weight:bold}
+.profileStats{display:flex;justify-content:center;gap:45px;margin-top:20px}
+.profileStat strong{display:block;font-size:20px}
+.profileStat span{color:#777;font-size:13px}
+.userRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #eee}
+.userRow:last-child{border:0}
+.userDetails{display:flex;align-items:center;gap:10px;min-width:0;overflow-wrap:anywhere}
+.smallAvatar{width:40px;height:40px;min-width:40px}
+.followingButton{background:#e5e7eb;color:#222}
+.searchBox{width:100%;padding:12px;border:1px solid #ddd;border-radius:25px;margin-bottom:15px}
+.empty{background:white;padding:25px;border-radius:15px;text-align:center;color:#777;line-height:1.6}
+.message{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#222;color:white;padding:12px 20px;border-radius:25px;display:none;z-index:10}
+@media(max-width:950px){.layout{grid-template-columns:180px minmax(0,1fr)}.rightSidebar{display:none}}
+@media(max-width:650px){.topbar{padding:0 15px}.layout{display:block;padding:10px}.leftSidebar{position:static;display:flex;overflow-x:auto;margin-bottom:10px}.navItem{white-space:nowrap}.postButton{display:none}.profileStats{gap:30px}}
+</style>
+</head>
+<body>
+
+<div id="authPage">
+<div class="authBox">
+<div class="logo">Connect</div>
+<div class="authSubtitle">Share. Connect. Follow.</div>
+<input id="username" placeholder="Username" autocomplete="username">
+<input id="password" type="password" placeholder="Password" autocomplete="current-password">
+<button class="authButton" id="authButton" onclick="authAction()">Login</button>
+<div class="authText"><span id="authQuestion">Don't have an account?</span><span id="authToggle" onclick="toggleAuth()">Create Account</span></div>
+</div>
+</div>
+
+<div id="appPage">
+<div class="topbar">
+<div class="topLogo">Connect</div>
+<div class="topRight"><span id="topUsername"></span><button class="logout" onclick="logout()">Logout</button></div>
+</div>
+
+<div class="layout">
+<aside class="leftSidebar">
+<div class="navItem active" data-page="home" onclick="showSection('home')">🏠 Home</div>
+<div class="navItem" data-page="profile" onclick="showSection('profile')">👤 Profile</div>
+<div class="navItem" data-page="people" onclick="showSection('people')">🔍 Find People</div>
+<button class="postButton" onclick="showSection('home')">+ Post</button>
+</aside>
+
+<main class="main">
+<section id="home" class="section active">
+<div class="pageTitle">Home</div>
+<div class="createBox">
+<div class="createTop">
+<div class="userAvatar" id="createAvatar"></div>
+<textarea id="postText" placeholder="What's happening?"></textarea>
+</div>
+<img id="selectedImage" class="selectedImage" alt="Preview">
+<div class="createBottom">
+<label class="imageLabel">🖼️ Add Image<input id="imageInput" type="file" accept="image/*" onchange="previewImage(event)"></label>
+<button class="publishButton" onclick="createPost()">Post</button>
+</div>
+</div>
+<div id="feed"></div>
+</section>
+
+<section id="profile" class="section">
+<div class="pageTitle">My Profile</div>
+<div class="profileCard">
+<div class="cover"></div>
+<div class="profileInfo">
+<div class="largeAvatar" id="profileAvatar"></div>
+<div class="profileName" id="profileName"></div>
+<div id="profileId" style="color:#777;margin-top:5px"></div>
+<div class="profileStats">
+<div class="profileStat"><strong id="profileFollowers">0</strong><span>Followers</span></div>
+<div class="profileStat"><strong id="profileFollowing">0</strong><span>Following</span></div>
+</div>
+</div>
+</div>
+<div class="userList"><h3>Followers</h3><div id="followersList"></div></div><br>
+<div class="userList"><h3>Following</h3><div id="followingList"></div></div><br>
+<h3 style="margin-bottom:10px">My Posts</h3><div id="myPosts"></div>
+</section>
+
+<section id="people" class="section">
+<div class="pageTitle">Find People</div>
+<input class="searchBox" id="searchInput" placeholder="Search username..." oninput="displayPeople()">
+<div class="userList" id="peopleList"></div>
+</section>
+</main>
+
+<aside class="rightSidebar">
+<div class="infoCard"><h3>My Account</h3>
+<div class="statRow"><span>Followers</span><strong id="rightFollowers">0</strong></div>
+<div class="statRow"><span>Following</span><strong id="rightFollowing">0</strong></div>
+<div class="statRow"><span>Posts</span><strong id="rightPosts">0</strong></div>
+</div>
+</aside>
+</div>
+</div>
+<div class="message" id="message"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let users=JSON.parse(localStorage.getItem("connectUsers")||"[]");
+let posts=JSON.parse(localStorage.getItem("connectPosts")||"[]");
+let current=localStorage.getItem("connectCurrentUser")||"";
+let registerMode=false,image="";
+
+function save(){
+localStorage.setItem("connectUsers",JSON.stringify(users));
+localStorage.setItem("connectPosts",JSON.stringify(posts));
+}
+
+function notify(text){
+$("message").textContent=text;
+$("message").style.display="block";
+setTimeout(()=>$("message").style.display="none",2000);
+}
+
+function toggleAuth(){
+registerMode=!registerMode;
+$("authButton").textContent=registerMode?"Create Account":"Login";
+$("authQuestion").textContent=registerMode?"Already have an account?":"Don't have an account?";
+$("authToggle").textContent=registerMode?"Login":"Create Account";
+}
+
+function authAction(){
+let name=$("username").value.trim().toLowerCase(),pass=$("password").value;
+if(!name||!pass)return alert("Enter username and password.");
+if(!/^[a-z0-9_]+$/.test(name))return alert("Use only letters, numbers and underscores in your username.");
+
+if(registerMode){
+if(users.some(u=>u.username===name))return alert("Username already exists.");
+users.push({username:name,password:pass,followers:[],following:[]});
+save();
+toggleAuth();
+$("username").value=$("password").value="";
+return notify("Account created. Please log in.");
+}
+
+if(!users.some(u=>u.username===name&&u.password===pass))return alert("Invalid username or password.");
+current=name;
+localStorage.setItem("connectCurrentUser",current);
+$("username").value=$("password").value="";
+openApp();
+}
+
+function openApp(){
+if(!users.some(u=>u.username===current)){
+current="";
+localStorage.removeItem("connectCurrentUser");
+return;
+}
+$("authPage").style.display="none";
+$("appPage").style.display="block";
+$("topUsername").textContent="@"+current;
+$("createAvatar").textContent=current[0].toUpperCase();
+refresh();
+}
+
+function logout(){
+current="";
+localStorage.removeItem("connectCurrentUser");
+$("appPage").style.display="none";
+$("authPage").style.display="flex";
+}
+
+function previewImage(e){
+let file=e.target.files[0];
+if(!file)return;
+if(!file.type.startsWith("image/"))return alert("Choose an image file.");
+if(file.size>1.5*1024*1024)return alert("Choose an image smaller than 1.5 MB.");
+let reader=new FileReader();
+reader.onload=()=>{
+image=reader.result;
+$("selectedImage").src=image;
+$("selectedImage").style.display="block";
+};
+reader.readAsDataURL(file);
+}
+
+function createPost(){
+let text=$("postText").value.trim();
+if(!text&&!image)return alert("Write something or select an image.");
+posts.unshift({id:Date.now(),user:current,text,image,likes:[],comments:[],time:new Date().toLocaleString()});
+save();
+$("postText").value="";
+$("imageInput").value="";
+$("selectedImage").removeAttribute("src");
+$("selectedImage").style.display="none";
+image="";
+refresh();
+notify("Post published.");
+}
+
+function me(){return users.find(u=>u.username===current)}
+
+function visiblePosts(){
+let u=me();
+return u?posts.filter(p=>p.user===current||u.followers.includes(p.user)||u.following.includes(p.user)):[];
+}
+
+function safe(value){
+let d=document.createElement("div");
+d.textContent=String(value??"");
+return d.innerHTML;
+}
+
+function postHTML(p){
+p.likes=p.likes||[];
+p.comments=p.comments||[];
+let liked=p.likes.includes(current);
+
+return `<article class="post">
+<div class="postHeader">
+<div class="userAvatar">${safe(p.user[0].toUpperCase())}</div>
+<div><div class="postUser">@${safe(p.user)}</div><div class="postDate">${safe(p.time||"")}</div></div>
+</div>
+${p.text?`<div class="postText">${safe(p.text)}</div>`:""}
+${p.image?`<img class="postImage" src="${p.image}" alt="Post image">`:""}
+<div class="postActions">
+<button class="actionButton ${liked?"liked":""}" onclick="likePost(${p.id})">${liked?"❤️":"♡"} ${p.likes.length}</button>
+<button class="actionButton" onclick="commentPost(${p.id})">💬 ${p.comments.length}</button>
+${p.user===current?`<button class="actionButton deletePost" onclick="deletePost(${p.id})">Delete</button>`:""}
+</div>
+<div class="commentArea">${p.comments.map(c=>`<div class="comment"><div class="commentUser">@${safe(c.user)}</div><div class="commentText">${safe(c.text)}</div></div>`).join("")}</div>
+</article>`;
+}
+
+function showPosts(){
+$("feed").innerHTML=visiblePosts().map(postHTML).join("")||'<div class="empty">No posts available. Follow someone or create your first post.</div>';
+}
+
+function likePost(id){
+let p=posts.find(p=>p.id===id);
+if(!p||!visiblePosts().some(x=>x.id===id))return;
+p.likes=p.likes||[];
+p.likes=p.likes.includes(current)?p.likes.filter(x=>x!==current):[...p.likes,current];
+save();
+refresh();
+}
+
+function commentPost(id){
+let p=posts.find(p=>p.id===id);
+if(!p||!visiblePosts().some(x=>x.id===id))return;
+let text=prompt("Write your comment:");
+if(!text||!text.trim())return;
+p.comments=p.comments||[];
+p.comments.push({user:current,text:text.trim()});
+save();
+refresh();
+}
+
+function deletePost(id){
+let p=posts.find(p=>p.id===id);
+if(!p||p.user!==current)return;
+posts=posts.filter(p=>p.id!==id);
+save();
+refresh();
+notify("Post deleted.");
+}
+
+function follow(name){
+let a=me(),b=users.find(u=>u.username===name);
+if(!a||!b||a===b)return;
+a.followers=a.followers||[];
+a.following=a.following||[];
+b.followers=b.followers||[];
+
+if(a.following.includes(name)){
+a.following=a.following.filter(x=>x!==name);
+b.followers=b.followers.filter(x=>x!==current);
+notify("Unfollowed @"+name);
+}else{
+a.following.push(name);
+if(!b.followers.includes(current))b.followers.push(current);
+notify("Following @"+name);
+}
+save();
+refresh();
+}
+
+function displayPeople(){
+let query=$("searchInput").value.trim().toLowerCase(),u=me();
+$("peopleList").innerHTML=users.filter(x=>x.username!==current&&x.username.includes(query)).map(x=>{
+let f=u.following.includes(x.username);
+return `<div class="userRow">
+<div class="userDetails">
+<div class="smallAvatar">${safe(x.username[0].toUpperCase())}</div>
+<div><b>@${safe(x.username)}</b><div style="font-size:12px;color:#777">${x.followers.length} followers</div></div>
+</div>
+<button class="followButton ${f?"followingButton":""}" onclick="follow('${x.username}')">${f?"Following":"Follow"}</button>
+</div>`;
+}).join("")||'<div class="empty">No users found.</div>';
+}
+
+function userList(id,names,unfollow=false){
+$(id).innerHTML=names.map(n=>`<div class="userRow">
+<div class="userDetails"><div class="smallAvatar">${safe(n[0].toUpperCase())}</div><b>@${safe(n)}</b></div>
+${unfollow?`<button class="followButton followingButton" onclick="follow('${n}')">Unfollow</button>`:""}
+</div>`).join("")||'<div class="empty">No users yet.</div>';
+}
+
+function profile(){
+let u=me();
+if(!u)return;
+$("profileName").textContent="@"+current;
+$("profileId").textContent="User ID: "+current;
+$("profileAvatar").textContent=current[0].toUpperCase();
+$("profileFollowers").textContent=u.followers.length;
+$("profileFollowing").textContent=u.following.length;
+userList("followersList",u.followers);
+userList("followingList",u.following,true);
+$("myPosts").innerHTML=posts.filter(p=>p.user===current).map(postHTML).join("")||'<div class="empty">You have not created any posts.</div>';
+}
+
+function stats(){
+let u=me();
+if(!u)return;
+$("rightFollowers").textContent=u.followers.length;
+$("rightFollowing").textContent=u.following.length;
+$("rightPosts").textContent=posts.filter(p=>p.user===current).length;
+}
+
+function showSection(id){
+document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id===id));
+document.querySelectorAll(".navItem").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
+if(id==="profile")profile();
+if(id==="people")displayPeople();
+}
+
+function refresh(){
+showPosts();
+profile();
+displayPeople();
+stats();
+}
+
+if(current&&me())openApp();
+else{
+current="";
+localStorage.removeItem("connectCurrentUser");
+}
+</script>
+</body>
+</html>

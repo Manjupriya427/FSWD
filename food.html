@@ -1,0 +1,728 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodTime - Food Delivery</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#eef9fb;color:#1f2937}
+.hidden{display:none!important}
+button{border:0;cursor:pointer}
+input,select{outline:none}
+.auth{min-height:100vh;background:linear-gradient(135deg,#075e50,#0f766e);display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-box{width:900px;max-width:100%;background:white;border-radius:18px;overflow:hidden;display:flex;box-shadow:0 20px 60px #0005}
+.auth-left{width:42%;background:#075e50;color:white;padding:35px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.big{font-size:65px}
+.auth-left h1{font-size:35px;margin:15px 0}
+.auth-left p{line-height:1.6;color:#d8f5ef}
+.auth-right{width:58%;padding:40px}
+.auth-right h2,.page-title{color:#075e50}
+.sub,.page-sub{color:#777;margin:8px 0 22px}
+.group{margin-bottom:14px}
+.group label{display:block;font-weight:bold;font-size:14px;margin-bottom:6px}
+.group input,.checkout-input{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;margin-bottom:10px}
+.auth-btn,.checkout-btn{width:100%;padding:13px;border-radius:8px;background:#f59e0b;color:white;font-weight:bold}
+.switch{text-align:center;margin-top:17px;color:#666}
+.switch span{color:#0f766e;font-weight:bold;cursor:pointer}
+.error{color:#dc2626;font-size:13px;margin-bottom:10px}
+.success{color:#15803d;font-size:13px;margin-bottom:10px}
+.app{display:none;min-height:100vh;max-width:1400px;margin:auto;background:#eef9fb}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#0f766e;color:white;padding:25px 15px;z-index:20}
+.logo{font-size:24px;font-weight:bold;margin:0 10px 45px}
+.sidebar ul{list-style:none}
+.sidebar li{margin-bottom:10px}
+.sidebar button{width:100%;padding:12px;border-radius:22px;background:transparent;color:white;text-align:left;font-size:14px}
+.sidebar button:hover,.sidebar button.active{background:#f59e0b}
+.sidebar button span:first-child{display:inline-block;width:25px;text-align:center}
+.main{margin-left:220px;min-height:100vh}
+.topbar{min-height:80px;background:#dff5f2;padding:15px 25px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.search{width:65%;max-width:600px;height:42px;background:white;border-radius:25px;display:flex;overflow:hidden}
+.search input{flex:1;min-width:0;border:0;padding:0 18px}
+.search button{padding:0 18px;background:#fbbf24;color:white}
+.actions{display:flex;gap:10px}
+.icon{width:40px;height:40px;border-radius:50%;background:white;position:relative}
+.count{position:absolute;right:-4px;top:-4px;background:#ef4444;color:white;width:18px;height:18px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center}
+.content{padding:20px 25px 40px}
+.recommend{background:#fbbf24;border-radius:8px;padding:14px;margin-bottom:15px}
+.recommend-head{display:flex;justify-content:space-between;margin-bottom:12px}
+.recommend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.recommend-card{background:white;border-radius:7px;padding:8px;display:flex;gap:8px;align-items:center}
+.recommend-card img{width:45px;height:45px;object-fit:cover;border-radius:6px}
+.recommend-card h4{font-size:12px}
+.recommend-card p{font-size:11px;color:#777;margin-top:5px}
+.section{background:white;padding:18px 12px;border-radius:7px;margin-bottom:15px}
+.section-title{font-size:14px;margin-bottom:14px}
+.cats{display:flex;gap:12px;overflow-x:auto}
+.cat{min-width:65px;text-align:center;cursor:pointer}
+.cat-icon{width:48px;height:48px;border-radius:8px;background:#e5f6f4;margin:auto;display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid transparent}
+.cat.active .cat-icon{background:#0f766e;color:white}
+.cat-name{font-size:10px;margin-top:5px}
+.order-title{font-size:16px;margin:18px 0 12px}
+.food-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.food-card{background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 7px #0001}
+.food-card img{width:100%;height:155px;object-fit:cover}
+.food-info{padding:12px}
+.food-info h3{font-size:14px;margin-bottom:5px}
+.food-info p{font-size:11px;color:#777;margin-bottom:10px}
+.food-bottom{display:flex;justify-content:space-between;align-items:center;gap:5px}
+.price{font-weight:bold;color:#0f766e}
+.add{background:#f59e0b;color:white;padding:8px 10px;border-radius:6px;font-size:11px}
+.page-title{font-size:22px;margin-bottom:5px}
+.page-sub{font-size:13px;margin-bottom:20px}
+.orders-grid,.settings-container{display:grid;gap:15px}
+.order-card,.settings-card{background:white;border-radius:10px;padding:18px;box-shadow:0 2px 8px #0001}
+.order-head{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:12px}
+.order-head h3{font-size:14px;overflow-wrap:anywhere}
+.status{background:#dcfce7;color:#15803d;padding:5px 9px;border-radius:15px;font-size:11px;white-space:nowrap}
+.order-date{font-size:11px;color:#777;margin-top:4px}
+.order-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f0f0f0}
+.order-item img{width:55px;height:55px;object-fit:cover;border-radius:7px}
+.order-item-info{flex:1}
+.order-item-info h4{font-size:13px}
+.order-item-info p{font-size:11px;color:#777;margin-top:4px}
+.order-item-total{font-weight:bold;font-size:12px;color:#0f766e}
+.order-footer{display:flex;justify-content:space-between;gap:12px;margin-top:13px;font-size:12px}
+.order-total{font-weight:bold;font-size:15px;color:#0f766e}
+.empty-orders{background:white;padding:50px 20px;text-align:center;border-radius:10px;color:#777}
+.empty-orders .emoji{font-size:45px}
+.settings-card h3{color:#0f766e;font-size:16px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e5e7eb}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid #f1f1f1}
+.setting-row:last-child{border-bottom:0}
+.setting-row b{display:block;font-size:14px;margin-bottom:4px}
+.setting-row p{color:#6b7280;font-size:12px;line-height:1.4}
+.setting-row button{background:#0f766e;color:white;padding:8px 15px;border-radius:6px;font-size:12px;white-space:nowrap}
+.logout-btn{width:100%;background:#ef4444;color:white;padding:11px;border-radius:7px;font-weight:bold}
+.toggle{position:relative;width:42px;height:23px;flex:none}
+.toggle input{display:none}
+.toggle span{position:absolute;inset:0;background:#ccc;border-radius:20px}
+.toggle span:before{content:"";position:absolute;width:17px;height:17px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s}
+.toggle input:checked+span{background:#0f766e}
+.toggle input:checked+span:before{transform:translateX(19px)}
+.cart{position:fixed;right:-420px;top:0;width:400px;max-width:95%;height:100vh;background:white;z-index:100;box-shadow:-5px 0 20px #0003;transition:.3s;display:flex;flex-direction:column}
+.cart.open{right:0}
+.cart-head{background:#0f766e;color:white;padding:20px;display:flex;justify-content:space-between}
+.cart-head button,.modal-head button{background:transparent;color:white;font-size:24px}
+.cart-items{flex:1;overflow:auto;padding:15px}
+.cart-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #ddd}
+.cart-item img{width:65px;height:65px;object-fit:cover;border-radius:7px}
+.cart-info{flex:1}
+.cart-info h4{font-size:13px}
+.cart-info p{color:#0f766e;font-weight:bold;font-size:12px;margin-top:4px}
+.qty{display:flex;gap:8px;align-items:center;margin-top:7px}
+.qty button{width:25px;height:25px;background:#e5f6f4;border-radius:4px}
+.remove{color:#ef4444;font-size:11px;margin-top:5px;cursor:pointer}
+.cart-footer{padding:20px;border-top:1px solid #ddd}
+.total-row{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:15px}
+.modal{display:none;position:fixed;z-index:200;left:50%;top:50%;transform:translate(-50%,-50%);width:460px;max-width:92%;max-height:90vh;overflow:auto;background:white;border-radius:12px;box-shadow:0 15px 50px #0005}
+.modal.show{display:block}
+.modal-head{background:#0f766e;color:white;padding:18px 20px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between}
+.modal-body{padding:20px}
+.profile-avatar{width:75px;height:75px;border-radius:50%;background:#0f766e;color:white;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px}
+.overlay{display:none;position:fixed;inset:0;background:#0007;z-index:90}
+.overlay.show{display:block}
+.toast{position:fixed;right:25px;bottom:25px;background:#0f766e;color:white;padding:13px 20px;border-radius:7px;z-index:500;transform:translateY(100px);opacity:0;transition:.3s}
+.toast.show{transform:translateY(0);opacity:1}
+@media(max-width:900px){
+.sidebar{width:75px;padding:20px 8px}
+.logo{font-size:16px;text-align:center;margin:0 0 40px}
+.sidebar button{text-align:center}
+.sidebar button span:last-child{display:none}
+.main{margin-left:75px}
+.recommend-grid,.food-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+.auth-box{flex-direction:column}
+.auth-left,.auth-right{width:100%}
+.auth-left{min-height:180px;padding:20px}
+.big{font-size:45px}
+.auth-left h1{font-size:28px;margin:8px}
+.auth-right{padding:25px}
+.sidebar{display:none}
+.main{margin-left:0}
+.topbar{padding:12px}
+.search{width:calc(100% - 90px)}
+.search button{padding:0 10px;font-size:12px}
+.content{padding:12px}
+.food-grid{grid-template-columns:1fr}
+.recommend-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.order-footer{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<div class="auth" id="authPage">
+<div class="auth-box">
+<div class="auth-left">
+<div class="big">🍔</div>
+<h1>FoodTime</h1>
+<p>Delicious food delivered directly to your doorstep.</p>
+</div>
+
+<div class="auth-right" id="loginForm">
+<h2>Welcome Back!</h2>
+<p class="sub">Login to continue ordering food.</p>
+<div id="loginMsg"></div>
+<div class="group"><label>Email</label><input id="loginEmail" type="email" placeholder="Enter your email"></div>
+<div class="group"><label>Password</label><input id="loginPassword" type="password" placeholder="Enter your password"></div>
+<button class="auth-btn" onclick="login()">Login</button>
+<p class="switch">Don't have an account? <span onclick="showRegister()">Register</span></p>
+</div>
+
+<div class="auth-right hidden" id="registerForm">
+<h2>Create Account</h2>
+<p class="sub">Register to start ordering delicious food.</p>
+<div id="registerMsg"></div>
+<div class="group"><label>Full Name</label><input id="regName" placeholder="Enter your name"></div>
+<div class="group"><label>Email</label><input id="regEmail" type="email" placeholder="Enter your email"></div>
+<div class="group"><label>Phone Number</label><input id="regPhone" type="tel" placeholder="Enter phone number"></div>
+<div class="group"><label>Password</label><input id="regPassword" type="password" placeholder="Minimum 6 characters"></div>
+<button class="auth-btn" onclick="register()">Register</button>
+<p class="switch">Already have an account? <span onclick="showLogin()">Login</span></p>
+</div>
+</div>
+</div>
+
+<div class="app" id="app">
+<aside class="sidebar">
+<div class="logo">FoodTime</div>
+<ul>
+<li><button class="active" onclick="showPage('home',this)">⌂ <span>Home</span></button></li>
+<li><button onclick="showPage('menu',this)">🍽 <span>Menu</span></button></li>
+<li><button onclick="showPage('orders',this)">▣ <span>Bills</span></button></li>
+<li><button onclick="info('Contact Us','FoodTime Support: support@foodtime.com | +91 98765 43210',this)">☎ <span>Contact Us</span></button></li>
+<li><button onclick="showPage('settings',this)">⚙ <span>Settings</span></button></li>
+</ul>
+</aside>
+
+<main class="main">
+<header class="topbar">
+<div class="search">
+<input id="searchInput" placeholder="What do you want to eat?" oninput="searchFood()">
+<button onclick="searchFood()">Search</button>
+</div>
+<div class="actions">
+<button class="icon" onclick="openCart()">🛒<span class="count" id="cartCount">0</span></button>
+<button class="icon" onclick="openProfile()">👤</button>
+</div>
+</header>
+
+<section class="content" id="homePage">
+<div class="recommend">
+<div class="recommend-head"><b>Recommendations</b><span>⭐ Fresh choices</span></div>
+<div class="recommend-grid" id="recommendGrid"></div>
+</div>
+<div class="section">
+<div class="section-title"><b>Menu Category</b></div>
+<div class="cats" id="homeCats"></div>
+</div>
+<h3 class="order-title">Choose Order</h3>
+<div class="food-grid" id="foodGrid"></div>
+</section>
+
+<section class="content hidden" id="menuPage">
+<h2 class="page-title">Food Menu</h2>
+<p class="page-sub">Choose your favourite food and add it to your cart.</p>
+<div class="section">
+<div class="section-title"><b>Menu Category</b></div>
+<div class="cats" id="menuCategories"></div>
+</div>
+<div class="food-grid" id="menuFoodGrid"></div>
+</section>
+
+<section class="content hidden" id="ordersPage">
+<h2 class="page-title">Bills / Previous Orders</h2>
+<p class="page-sub">Your previous orders remain saved after logout and login.</p>
+<div id="ordersList"></div>
+</section>
+
+<section class="content hidden" id="settingsPage">
+<h2 class="page-title">Settings</h2>
+<p class="page-sub">Manage your FoodTime account and preferences.</p>
+<div class="settings-container">
+<div class="settings-card">
+<h3>👤 Account</h3>
+<div class="setting-row"><div><b>Profile</b><p>View your information.</p></div><button onclick="openProfile()">View</button></div>
+</div>
+<div class="settings-card">
+<h3>📍 Delivery</h3>
+<div class="setting-row"><div><b>Delivery Address</b><p>Manage your delivery address.</p></div><button onclick="openAddress()">Edit</button></div>
+</div>
+<div class="settings-card">
+<h3>🔔 Notifications</h3>
+<div class="setting-row"><div><b>Order Updates</b><p>Receive order notifications.</p></div><label class="toggle"><input type="checkbox" checked><span></span></label></div>
+<div class="setting-row"><div><b>Offers & Discounts</b><p>Receive special offers.</p></div><label class="toggle"><input type="checkbox" checked><span></span></label></div>
+</div>
+<div class="settings-card">
+<h3>🔒 Security</h3>
+<div class="setting-row"><div><b>Change Password</b><p>Update your account password.</p></div><button onclick="changePassword()">Change</button></div>
+</div>
+<div class="settings-card">
+<h3>ℹ️ About</h3>
+<div class="setting-row"><div><b>About FoodTime</b><p>Delicious food delivered to your doorstep.</p></div></div>
+<div class="setting-row"><div><b>Terms & Conditions</b><p>Read our terms.</p></div><button onclick="showTerms()">View</button></div>
+<div class="setting-row"><div><b>Privacy Policy</b><p>Learn how your data is stored.</p></div><button onclick="showPrivacy()">View</button></div>
+</div>
+<div class="settings-card"><h3>Account</h3><button class="logout-btn" onclick="logout()">Logout</button></div>
+</div>
+</section>
+</main>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<div class="cart" id="cartPanel">
+<div class="cart-head"><h2>Your Cart</h2><button onclick="closeCart()">×</button></div>
+<div class="cart-items" id="cartItems"></div>
+<div class="cart-footer">
+<div class="total-row"><span>Total</span><span id="cartTotal">₹0</span></div>
+<button class="checkout-btn" onclick="openCheckout()">Proceed to Checkout</button>
+</div>
+</div>
+
+<div class="modal" id="checkoutModal">
+<div class="modal-head"><h3>Checkout</h3><button onclick="closeModal('checkoutModal')">×</button></div>
+<div class="modal-body">
+<input class="checkout-input" id="checkoutName" placeholder="Full Name">
+<input class="checkout-input" id="checkoutPhone" type="tel" placeholder="Phone Number">
+<input class="checkout-input" id="checkoutAddress" placeholder="Delivery Address">
+<select class="checkout-input" id="payment">
+<option>Cash on Delivery</option><option>UPI</option><option>Credit / Debit Card</option>
+</select>
+<button class="checkout-btn" onclick="placeOrder()">Place Order</button>
+</div>
+</div>
+
+<div class="modal" id="profileModal">
+<div class="modal-head"><h3>My Profile</h3><button onclick="closeModal('profileModal')">×</button></div>
+<div class="modal-body" style="text-align:center">
+<div class="profile-avatar">👤</div>
+<h3 id="profileName"></h3>
+<p id="profileEmail" style="color:#777;margin:8px 0 20px"></p>
+<button class="checkout-btn" onclick="closeModal('profileModal');showPage('settings')">Settings</button>
+<button class="logout-btn" style="margin-top:10px" onclick="logout()">Logout</button>
+</div>
+</div>
+
+<div class="modal" id="infoModal">
+<div class="modal-head"><h3 id="infoTitle"></h3><button onclick="closeModal('infoModal')">×</button></div>
+<div class="modal-body"><p id="infoText"></p></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const foods={
+1:{name:"Classic Burger",price:199,category:"Burger",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500"},
+2:{name:"Italian Pizza",price:299,category:"Pizza",image:"https://images.unsplash.com/photo- pizza-?w=500".replace("photo- pizza-","photo-1579751626657-72bc17010498")},
+3:{name:"Grilled Fish",price:399,category:"Seafood",image:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500"},
+4:{name:"Fresh Salad",price:149,category:"Healthy",image:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500"},
+5:{name:"Chicken Burger",price:229,category:"Burger",image:"https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=500"},
+6:{name:"Cheese Pizza",price:269,category:"Pizza",image:"https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=500"},
+7:{name:"Fresh Orange Juice",price:99,category:"Drinks",image:"https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=500"},
+8:{name:"Cafe Latte",price:129,category:"Coffee",image:"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500"},
+9:{name:"Vanilla Ice Cream",price:119,category:"Dessert",image:"https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500"}
+};
+
+const $=id=>document.getElementById(id);
+const money=n=>"₹"+Math.round(n);
+let cart=JSON.parse(localStorage.getItem("foodTimeCart")||"[]");
+let selectedHome="All",selectedMenu="All";
+
+const cats=[
+["All","🍽","All Menus"],["Burger","🍔","Burger"],
+["Pizza","🍕","Pizza"],["Drinks","🥤","Drinks"],
+["Dessert","🍦","Ice Cream"],["Coffee","☕","Coffee"],
+["Seafood","🐟","Seafood"],["Healthy","🥗","Healthy"]
+];
+
+function currentUser(){
+return JSON.parse(localStorage.getItem("foodTimeUser")||"null");
+}
+
+function getUsers(){
+return JSON.parse(localStorage.getItem("foodTimeUsers")||"[]");
+}
+
+function saveUsers(users){
+localStorage.setItem("foodTimeUsers",JSON.stringify(users));
+}
+
+function orders(){
+let u=currentUser();
+let all=JSON.parse(localStorage.getItem("foodTimeOrders")||"[]");
+return u?all.filter(o=>o.email===u.email):[];
+}
+
+function showRegister(){
+$("loginForm").classList.add("hidden");
+$("registerForm").classList.remove("hidden");
+$("registerMsg").innerHTML="";
+}
+
+function showLogin(){
+$("registerForm").classList.add("hidden");
+$("loginForm").classList.remove("hidden");
+$("loginMsg").innerHTML="";
+}
+
+function register(){
+let name=$("regName").value.trim();
+let email=$("regEmail").value.trim().toLowerCase();
+let phone=$("regPhone").value.trim();
+let password=$("regPassword").value;
+
+if(!name||!email||!phone||!password){
+$("registerMsg").innerHTML='<div class="error">Please fill all fields.</div>';
+return;
+}
+if(password.length<6){
+$("registerMsg").innerHTML='<div class="error">Password must contain at least 6 characters.</div>';
+return;
+}
+let users=getUsers();
+if(users.some(u=>u.email===email)){
+$("registerMsg").innerHTML='<div class="error">This email is already registered. Please login.</div>';
+return;
+}
+users.push({name,email,phone,password,address:""});
+saveUsers(users);
+$("registerMsg").innerHTML='<div class="success">Registration successful. Please login.</div>';
+$("loginEmail").value=email;
+$("loginPassword").value="";
+setTimeout(showLogin,700);
+}
+
+function login(){
+let email=$("loginEmail").value.trim().toLowerCase();
+let password=$("loginPassword").value;
+let users=getUsers();
+let user=users.find(u=>u.email===email&&u.password===password);
+
+if(!user){
+$("loginMsg").innerHTML='<div class="error">Invalid email or password. Please register if you do not have an account.</div>';
+return;
+}
+localStorage.setItem("foodTimeUser",JSON.stringify(user));
+localStorage.setItem("foodTimeLoggedIn","true");
+$("authPage").style.display="none";
+$("app").style.display="block";
+renderFoods();
+updateCart();
+showToast("Welcome to FoodTime!");
+}
+
+function logout(){
+localStorage.removeItem("foodTimeLoggedIn");
+closeAll();
+$("app").style.display="none";
+$("authPage").style.display="flex";
+$("loginEmail").value="";
+$("loginPassword").value="";
+showLogin();
+}
+
+function categoryHTML(fn,selected){
+return cats.map(c=>`
+<div class="cat ${c[0]===selected?"active":""}" onclick="${fn}('${c[0]}',this)">
+<div class="cat-icon">${c[1]}</div>
+<div class="cat-name">${c[2]}</div>
+</div>`).join("");
+}
+
+function foodHTML(){
+return Object.entries(foods).map(([id,f])=>`
+<div class="food-card" data-category="${f.category}" data-name="${f.name.toLowerCase()}">
+<img src="${f.image}" alt="${f.name}" loading="lazy">
+<div class="food-info">
+<h3>${f.name}</h3>
+<p>Fresh ${f.category.toLowerCase()} prepared for you.</p>
+<div class="food-bottom">
+<span class="price">${money(f.price)}</span>
+<button class="add" onclick="addToCart(${id})">Add to Cart</button>
+</div>
+</div>
+</div>`).join("");
+}
+
+function renderFoods(){
+$("homeCats").innerHTML=categoryHTML("filterHome",selectedHome);
+$("menuCategories").innerHTML=categoryHTML("filterMenu",selectedMenu);
+$("foodGrid").innerHTML=foodHTML();
+$("menuFoodGrid").innerHTML=foodHTML();
+
+$("recommendGrid").innerHTML=[4,8,3,1].map(id=>{
+let f=foods[id];
+return `<div class="recommend-card">
+<img src="${f.image}" alt="${f.name}">
+<div><h4>${f.name}</h4><p>${money(f.price)}</p></div>
+</div>`;
+}).join("");
+
+applyFilter("#homePage",selectedHome);
+applyFilter("#menuPage",selectedMenu);
+searchFood();
+}
+
+function applyFilter(page,category){
+document.querySelectorAll(page+" .food-card").forEach(card=>{
+let matchesCategory=category==="All"||card.dataset.category===category;
+let q=$("searchInput").value.toLowerCase();
+let matchesSearch=card.dataset.name.includes(q);
+card.style.display=matchesCategory&&matchesSearch?"block":"none";
+});
+}
+
+function filterHome(category,el){
+selectedHome=category;
+$("homeCats").innerHTML=categoryHTML("filterHome",selectedHome);
+applyFilter("#homePage",selectedHome);
+}
+
+function filterMenu(category,el){
+selectedMenu=category;
+$("menuCategories").innerHTML=categoryHTML("filterMenu",selectedMenu);
+applyFilter("#menuPage",selectedMenu);
+}
+
+function searchFood(){
+applyFilter("#homePage",selectedHome);
+applyFilter("#menuPage",selectedMenu);
+}
+
+function saveCart(){
+localStorage.setItem("foodTimeCart",JSON.stringify(cart));
+}
+
+function addToCart(id){
+let item=cart.find(x=>x.id===id);
+if(item)item.quantity++;
+else cart.push({id,quantity:1});
+saveCart();
+updateCart();
+showToast(foods[id].name+" added to cart!");
+}
+
+function updateCart(){
+let total=0,count=0;
+$("cartItems").innerHTML=cart.length?cart.map(item=>{
+let f=foods[item.id];
+if(!f)return "";
+let sum=f.price*item.quantity;
+total+=sum;
+count+=item.quantity;
+return `<div class="cart-item">
+<img src="${f.image}" alt="${f.name}">
+<div class="cart-info">
+<h4>${f.name}</h4><p>${money(f.price)} each</p>
+<div class="qty">
+<button onclick="changeQty(${item.id},-1)">−</button>
+<span>${item.quantity}</span>
+<button onclick="changeQty(${item.id},1)">+</button>
+</div>
+<div class="remove" onclick="removeItem(${item.id})">Remove</div>
+</div>
+</div>`;
+}).join(""):'<div style="text-align:center;color:#777;padding:50px 10px"><div style="font-size:45px">🛒</div><h3>Your cart is empty</h3></div>';
+$("cartTotal").textContent=money(total);
+$("cartCount").textContent=count;
+}
+
+function changeQty(id,n){
+let item=cart.find(x=>x.id===id);
+if(!item)return;
+item.quantity+=n;
+if(item.quantity<=0)cart=cart.filter(x=>x.id!==id);
+saveCart();
+updateCart();
+}
+
+function removeItem(id){
+cart=cart.filter(x=>x.id!==id);
+saveCart();
+updateCart();
+}
+
+function openCart(){
+updateCart();
+$("cartPanel").classList.add("open");
+$("overlay").classList.add("show");
+}
+
+function closeCart(){
+$("cartPanel").classList.remove("open");
+if(!document.querySelector(".modal.show"))$("overlay").classList.remove("show");
+}
+
+function openCheckout(){
+if(!cart.length){
+showToast("Your cart is empty.");
+return;
+}
+let u=currentUser();
+if(u){
+$("checkoutName").value=u.name;
+$("checkoutPhone").value=u.phone;
+$("checkoutAddress").value=u.address||"";
+}
+$("checkoutModal").classList.add("show");
+$("overlay").classList.add("show");
+}
+
+function placeOrder(){
+let name=$("checkoutName").value.trim();
+let phone=$("checkoutPhone").value.trim();
+let address=$("checkoutAddress").value.trim();
+if(!name||!phone||!address){
+showToast("Please enter all delivery details.");
+return;
+}
+if(!cart.length){
+showToast("Your cart is empty.");
+return;
+}
+
+let user=currentUser();
+let users=getUsers();
+let index=users.findIndex(u=>u.email===user.email);
+if(index>=0){
+users[index].name=name;
+users[index].phone=phone;
+users[index].address=address;
+user=users[index];
+saveUsers(users);
+localStorage.setItem("foodTimeUser",JSON.stringify(user));
+}
+
+let all=JSON.parse(localStorage.getItem("foodTimeOrders")||"[]");
+all.push({
+id:"FT"+Date.now(),
+email:user.email,
+address,
+payment:$("payment").value,
+date:new Date().toLocaleString(),
+items:cart.map(x=>({...x}))
+});
+localStorage.setItem("foodTimeOrders",JSON.stringify(all));
+cart=[];
+saveCart();
+updateCart();
+closeAll();
+renderOrders();
+showToast("Order placed successfully!");
+}
+
+function renderOrders(){
+let all=orders();
+if(!all.length){
+$("ordersList").innerHTML='<div class="empty-orders"><div class="emoji">🧾</div><h3>No previous orders</h3><p>Your orders will appear here after checkout.</p></div>';
+return;
+}
+$("ordersList").innerHTML='<div class="orders-grid">'+all.slice().reverse().map(o=>{
+let total=0;
+let items=o.items.map(i=>{
+let f=foods[i.id];
+if(!f)return "";
+let sum=f.price*i.quantity;
+total+=sum;
+return `<div class="order-item">
+<img src="${f.image}" alt="${f.name}">
+<div class="order-item-info"><h4>${f.name}</h4><p>${money(f.price)} × ${i.quantity}</p></div>
+<div class="order-item-total">${money(sum)}</div>
+</div>`;
+}).join("");
+return `<div class="order-card">
+<div class="order-head"><div><h3>Order #${o.id}</h3><div class="order-date">${o.date}</div></div><span class="status">Placed</span></div>
+${items}
+<div class="order-footer"><div><b>Delivery:</b> ${o.address}<br><b>Payment:</b> ${o.payment}</div><div class="order-total">Total ${money(total)}</div></div>
+</div>`;
+}).join("")+'</div>';
+}
+
+function showPage(page,button){
+document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active"));
+if(button)button.classList.add("active");
+["home","menu","orders","settings"].forEach(p=>{
+$(p+"Page").classList.toggle("hidden",p!==page);
+});
+if(page==="orders")renderOrders();
+}
+
+function openProfile(){
+let u=currentUser();
+if(!u)return;
+$("profileName").textContent=u.name;
+$("profileEmail").textContent=u.email;
+$("profileModal").classList.add("show");
+$("overlay").classList.add("show");
+}
+
+function openAddress(){
+let u=currentUser();
+$("infoTitle").textContent="Delivery Address";
+$("infoText").textContent=u?.address||"No address saved yet. Enter it during checkout.";
+$("infoModal").classList.add("show");
+$("overlay").classList.add("show");
+}
+
+function changePassword(){
+info("Change Password","For this demo, please register with a new account if you need to test a different password.");
+}
+
+function showTerms(){
+info("Terms & Conditions","FoodTime is a demonstration food-delivery application. Orders are simulated and no real payment or delivery is processed.");
+}
+
+function showPrivacy(){
+info("Privacy Policy","This demo stores account, cart and order data in your browser using LocalStorage. Do not use real passwords or sensitive personal information.");
+}
+
+function info(title,message,button){
+document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active"));
+if(button)button.classList.add("active");
+$("infoTitle").textContent=title;
+$("infoText").textContent=message;
+$("infoModal").classList.add("show");
+$("overlay").classList.add("show");
+}
+
+function closeModal(id){
+$(id).classList.remove("show");
+if(!document.querySelector(".modal.show")&&!$("cartPanel").classList.contains("open")){
+$("overlay").classList.remove("show");
+}
+}
+
+function closeAll(){
+$("cartPanel").classList.remove("open");
+document.querySelectorAll(".modal").forEach(m=>m.classList.remove("show"));
+$("overlay").classList.remove("show");
+}
+
+function showToast(message){
+$("toast").textContent=message;
+$("toast").classList.add("show");
+clearTimeout(window.toastTimer);
+window.toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2500);
+}
+
+function init(){
+renderFoods();
+updateCart();
+if(localStorage.getItem("foodTimeLoggedIn")==="true"&&currentUser()){
+$("authPage").style.display="none";
+$("app").style.display="block";
+}else{
+$("authPage").style.display="flex";
+$("app").style.display="none";
+}
+}
+
+init();
+</script>
+</body>
+</html>
